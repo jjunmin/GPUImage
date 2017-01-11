@@ -5,20 +5,22 @@ NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
 (
  varying highp vec2 textureCoordinate;
  varying highp vec2 textureCoordinate2;
-
+ 
  uniform sampler2D inputImageTexture;
  uniform sampler2D inputImageTexture2;
  
  uniform lowp float mixturePercent;
-
+ 
  void main()
  {
-	 lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
-	 lowp vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);
-	 
-	 gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
+     lowp vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
+     lowp vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);
+     
+     // gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
+     lowp float alphaDivisor = textureColor2.a + step(textureColor2.a, 0.0); // Protect against a divide-by-zero blacking out things in the output
+     gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb / alphaDivisor, mixturePercent * textureColor2.a), textureColor.a);
  }
-);
+ );
 #else
 NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
 (
@@ -32,12 +34,12 @@ NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
  
  void main()
  {
-	 vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
-	 vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);
-	 
-	 gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
+     vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
+     vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);
+     
+     gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
  }
-);
+ );
 #endif
 
 @implementation GPUImageAlphaBlendFilter
@@ -48,7 +50,7 @@ NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
 {
     if (!(self = [super initWithFragmentShaderFromString:kGPUImageAlphaBlendFragmentShaderString]))
     {
-		return nil;
+        return nil;
     }
     
     mixUniform = [filterProgram uniformIndex:@"mixturePercent"];
