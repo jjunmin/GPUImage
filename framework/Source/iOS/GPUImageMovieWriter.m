@@ -27,12 +27,10 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
     
     GPUImageFramebuffer *firstInputFramebuffer;
     
-    
-    BOOL discount;
+    BOOL discont;
     BOOL allowWriteAudio;
     BOOL willFinish;
     void (^completeHandler)(void);
-    
     
     CMTime startTime, previousFrameTime, previousAudioTime;
     
@@ -325,16 +323,13 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
 
 - (void)finishRecordingWithCompletionHandler:(void (^)(void))handler;
 {
-    
     runSynchronouslyOnContextQueue(_movieWriterContext, ^{
         
         willFinish = NO;
         
-        
         if (assetWriter.status == AVAssetWriterStatusCompleted || assetWriter.status == AVAssetWriterStatusCancelled || assetWriter.status == AVAssetWriterStatusUnknown)
         {
             isRecording = NO;
-            
             
             if (handler)
                 runAsynchronouslyOnContextQueue(_movieWriterContext, handler);
@@ -350,6 +345,7 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
         }
         completeHandler = NULL;
         isRecording = NO;
+        
         
         
         if( assetWriter.status == AVAssetWriterStatusWriting && ! videoEncodingIsFinished )
@@ -394,12 +390,11 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
     }
     
     if (_hasAudioTrack && CMTIME_IS_VALID(startTime))
-        //if (_hasAudioTrack)
+        //    if (_hasAudioTrack)
     {
         CFRetain(audioBuffer);
         
         CMTime currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(audioBuffer);
-        
         
         if (CMTIME_IS_INVALID(startTime))
         {
@@ -795,7 +790,7 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
         [inputFramebufferForBlock unlock];
         
         if (willFinish && CMTimeCompare(previousFrameTime, previousAudioTime) != -1) {
-            // willFinish = NO;
+            //willFinish = NO;
             [self finishRecordingWithCompletionHandler:completeHandler];
         }
     });
@@ -965,4 +960,3 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
 }
 
 @end
-

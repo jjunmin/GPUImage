@@ -19,6 +19,7 @@ NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
      // gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
      lowp float alphaDivisor = textureColor2.a + step(textureColor2.a, 0.0); // Protect against a divide-by-zero blacking out things in the output
      gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb / alphaDivisor, mixturePercent * textureColor2.a), textureColor.a);
+     
  }
  );
 #else
@@ -37,7 +38,10 @@ NSString *const kGPUImageAlphaBlendFragmentShaderString = SHADER_STRING
      vec4 textureColor = texture2D(inputImageTexture, textureCoordinate);
      vec4 textureColor2 = texture2D(inputImageTexture2, textureCoordinate2);
      
-     gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
+     // gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb, textureColor2.a * mixturePercent), textureColor.a);
+     lowp float alphaDivisor = textureColor2.a + step(textureColor2.a, 0.0); // Protect against a divide-by-zero blacking out things in the output
+     gl_FragColor = vec4(mix(textureColor.rgb, textureColor2.rgb / alphaDivisor, mixturePercent * textureColor2.a), textureColor.a);
+     
  }
  );
 #endif
