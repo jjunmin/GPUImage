@@ -393,12 +393,13 @@ NSString *const kGPUImageColorSwizzlingFragmentShaderString = SHADER_STRING
         return;
     }
     
-    //    if (_hasAudioTrack && CMTIME_IS_VALID(startTime))
-    if (_hasAudioTrack)
+        if (_hasAudioTrack && CMTIME_IS_VALID(startTime))
+    //if (_hasAudioTrack)
     {
         CFRetain(audioBuffer);
         
         CMTime currentSampleTime = CMSampleBufferGetOutputPresentationTimeStamp(audioBuffer);
+        
         
         if (CMTIME_IS_INVALID(startTime))
         {
